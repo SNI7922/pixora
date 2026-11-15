@@ -1,199 +1,231 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pixora — Logo Enhancer</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#090d16;color:#f5f7ff;font-family:Arial,sans-serif}
-header{padding:22px 7%;border-bottom:1px solid #202a3c;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:26px;font-weight:800;color:#fff}
-.logo span{color:#8b7cff}
-.tag{color:#a9b2c7;font-size:13px}
-main{max-width:1050px;margin:65px auto;padding:0 22px}
-.hero{text-align:center;margin-bottom:38px}
-.hero h1{font-size:clamp(32px,5vw,52px);margin:0 0 14px}
-.hero h1 span{color:#9b8cff}
-.hero p{color:#9ca8bd;line-height:1.7}
-.panel{background:#111827;border:1px solid #273449;border-radius:18px;padding:25px;margin-bottom:22px}
-.upload{border:2px dashed #465575;border-radius:14px;padding:45px 15px;text-align:center;cursor:pointer;background:#0d1422}
-.upload:hover{border-color:#998aff}
-.upload strong{display:block;font-size:19px;margin-bottom:10px}
-.upload p{color:#9ca8bd;font-size:14px}
-input[type=file]{display:none}
-button{border:0;border-radius:9px;padding:12px 18px;font-weight:700;cursor:pointer;background:#8978ff;color:white}
-button:hover{background:#7562ed}
-button.secondary{background:#263247;color:#e6eaff}
-.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:22px;margin-top:22px}
-.control label{display:flex;justify-content:space-between;color:#cbd5e1;font-size:14px;margin-bottom:12px}
-input[type=range]{width:100%;accent-color:#9785ff}
-.preview{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.preview-box{background:#0a101c;border:1px solid #28344a;border-radius:12px;padding:12px;min-width:0}
-.preview-box h3{font-size:14px;color:#bdc7da;margin:5px 0 12px}
-.canvas-wrap{min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;background-color:#151d2b;background-image:linear-gradient(45deg,#202a3a 25%,transparent 25%),linear-gradient(-45deg,#202a3a 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#202a3a 75%),linear-gradient(-45deg,transparent 75%,#202a3a 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
-canvas{max-width:100%;max-height:320px;object-fit:contain}
-.empty{color:#66748c;font-size:13px;text-align:center;padding:35px 5px}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
-.actions button{flex:1}
-.status{font-size:13px;color:#a9b5ca;margin-top:14px;min-height:18px}
-footer{text-align:center;color:#68758b;padding:30px;font-size:13px}
-@media(max-width:600px){main{margin:35px auto}.preview{grid-template-columns:1fr}header{padding:18px 5%}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090b12" />
+  <meta name="description" content="Pixora — enhance and upscale low-resolution logos privately in your browser." />
+  <title>Pixora — AI Logo Enhancer</title>
+  <style>
+    :root{color-scheme:dark;--bg:#090b12;--panel:#111522;--panel2:#151b2b;--line:#252d40;--muted:#929bb0;--text:#f5f7ff;--purple:#9272ff;--cyan:#63d7e8;--good:#7ce0b0;--danger:#ff8f9b}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#26204b 0%,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+    button,input{font:inherit}.wrap{width:min(1120px,calc(100% - 36px));margin:auto}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);font-size:22px;font-weight:800;letter-spacing:-.7px}.brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--purple),#4b9fff);display:grid;place-items:center;box-shadow:0 7px 24px #8061ff55}.brand-mark svg{width:21px}.top-pill{color:#b9c3d9;border:1px solid var(--line);background:#ffffff08;padding:7px 12px;border-radius:99px;font-size:12px}
+    .hero{text-align:center;padding:64px 0 38px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid #8061ff55;border-radius:99px;color:#c8baff;background:#8061ff14;font-size:12px;font-weight:700;letter-spacing:.4px}.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 12px var(--good)}h1{font-size:clamp(36px,6vw,64px);line-height:1.04;letter-spacing:-2.6px;margin:20px 0 14px;font-weight:850}.gradient{background:linear-gradient(95deg,#b8a7ff 10%,#75d9ec 90%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{color:var(--muted);max-width:620px;margin:0 auto;font-size:16px}
+    .workspace{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px auto 0}.panel{background:linear-gradient(180deg,#151a29,#101420);border:1px solid var(--line);border-radius:20px;padding:20px;min-width:0;box-shadow:0 18px 50px #0003}.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.panel-title{font-weight:750;font-size:14px}.step{color:#a9b3ca;font-size:11px;border:1px solid var(--line);border-radius:7px;padding:4px 8px}
+    .drop{min-height:310px;border:1px dashed #59617b;border-radius:15px;background:linear-gradient(145deg,#171d2d,#101522);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;transition:.2s;cursor:pointer;position:relative;overflow:hidden}.drop.drag{border-color:var(--purple);background:#8061ff16}.upload-icon{width:58px;height:58px;border-radius:18px;background:#8061ff20;border:1px solid #8061ff45;display:grid;place-items:center;color:#b8a7ff;margin-bottom:17px}.upload-icon svg{width:26px}.drop strong{font-size:16px}.drop p{color:var(--muted);font-size:13px;margin:7px 0 18px}.browse{border:0;border-radius:10px;padding:10px 17px;background:linear-gradient(100deg,#8a6bff,#5d9cff);color:white;font-weight:750;cursor:pointer;box-shadow:0 7px 22px #705aff44}.formats{font-size:11px;color:#78839c;margin-top:14px}.file-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.preview{display:none;width:100%;height:310px;object-fit:contain;border-radius:14px;background-color:#0b0e17;background-image:linear-gradient(45deg,#1a2030 25%,transparent 25%),linear-gradient(-45deg,#1a2030 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1a2030 75%),linear-gradient(-45deg,transparent 75%,#1a2030 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+    .file-row{display:none;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 12px;background:#ffffff08;border:1px solid var(--line);border-radius:10px;font-size:12px;color:#c7cde0}.file-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.text-btn{border:0;background:none;color:#c2b4ff;cursor:pointer;font-size:12px;white-space:nowrap}
+    .result-empty{height:310px;border:1px solid #252d40;border-radius:15px;background:radial-gradient(circle at 50% 45%,#24213a 0,transparent 52%),#0e121e;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#79839a;padding:24px}.result-empty svg{width:48px;height:48px;color:#646e86;margin-bottom:14px}.result-empty strong{color:#c4cbe0;font-size:14px}.result-empty span{font-size:12px;margin-top:6px}.result-image{display:none;width:100%;height:310px;object-fit:contain;border-radius:14px;background-color:#0b0e17;background-image:linear-gradient(45deg,#1a2030 25%,transparent 25%),linear-gradient(-45deg,#1a2030 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1a2030 75%),linear-gradient(-45deg,transparent 75%,#1a2030 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+    .controls{display:flex;gap:10px;align-items:center;margin-top:16px}.select-wrap{display:flex;align-items:center;gap:9px;color:#aeb8ce;font-size:12px}.select-wrap select{background:#1a2030;border:1px solid var(--line);color:white;padding:9px 28px 9px 11px;border-radius:9px;outline:none}.enhance{flex:1;border:0;border-radius:10px;padding:12px 14px;color:#fff;font-weight:800;background:linear-gradient(100deg,#8a6bff,#5d9cff);cursor:pointer;box-shadow:0 8px 24px #705aff33;transition:.2s}.enhance:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}.download{display:none;margin-top:12px;width:100%;border:1px solid #387b63;background:#153126;color:#a8f0cf;border-radius:10px;padding:11px;font-weight:750;text-decoration:none;text-align:center}.status{min-height:22px;margin-top:10px;color:#a9b3ca;font-size:12px;text-align:center}.status.error{color:var(--danger)}.status.success{color:var(--good)}.progress{display:none;height:5px;background:#262d40;border-radius:99px;overflow:hidden;margin-top:8px}.progress>span{display:block;width:35%;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--purple),var(--cyan));animation:move 1.2s ease-in-out infinite alternate}@keyframes move{from{transform:translateX(-20%)}to{transform:translateX(210%)}}
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0 64px}.feature{border:1px solid var(--line);background:#ffffff05;border-radius:14px;padding:16px}.feature b{display:block;font-size:13px;margin:7px 0 3px}.feature p{margin:0;color:var(--muted);font-size:12px}.feature-icon{color:#b8a7ff}.feature-icon svg{width:19px;height:19px}.notice{color:#7f8aa2;font-size:11px;text-align:center;margin:0 auto 26px;max-width:800px}.footer{border-top:1px solid #ffffff12;padding:20px 0 30px;color:#69748c;font-size:11px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    @media(max-width:760px){.workspace{grid-template-columns:1fr}.hero{padding:48px 0 28px}.features{grid-template-columns:1fr;margin-bottom:40px}.drop,.preview,.result-empty,.result-image{height:250px;min-height:250px}.controls{flex-wrap:wrap}.select-wrap{width:100%;justify-content:space-between}.enhance{width:100%;flex:auto}.top-pill{font-size:10px}.panel{padding:15px}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@upscalerjs/default-model@latest/dist/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/upscaler@latest/dist/browser/umd/upscaler.min.js"></script>
 </head>
 <body>
-<header>
-  <div class="logo">pix<span>ora.</span></div>
-  <div class="tag">Free Image Enhancer</div>
-</header>
-
-<main>
-  <section class="hero">
-    <h1>Make Your Logo <span>Look Better.</span></h1>
-    <p>Upload your logo, improve its appearance and download a larger PNG image.<br>Simple, free and right in your browser.</p>
-  </section>
-
-  <section class="panel">
-    <label class="upload" for="file">
-      <strong>＋ Upload Your Logo</strong>
-      <p>Choose a PNG, JPG or WebP image from your device</p>
-      <p>Nothing is uploaded to a server.</p>
-    </label>
-    <input id="file" type="file" accept="image/png,image/jpeg,image/webp">
-    <div class="controls">
-      <div class="control">
-        <label>Brightness <span id="bv">100%</span></label>
-        <input id="brightness" type="range" min="50" max="150" value="100">
-      </div>
-      <div class="control">
-        <label>Contrast <span id="cv">100%</span></label>
-        <input id="contrast" type="range" min="50" max="180" value="100">
-      </div>
-      <div class="control">
-        <label>Sharpness <span id="sv">0</span></label>
-        <input id="sharpness" type="range" min="0" max="100" value="0">
-      </div>
-    </div>
-    <div class="actions">
-      <button class="secondary" id="reset">Reset Settings</button>
-      <button id="download">Download Enhanced PNG</button>
-    </div>
-    <div class="status" id="status">Choose an image to get started.</div>
-  </section>
-
-  <section class="panel">
-    <div class="preview">
-      <div class="preview-box">
-        <h3>Original Image</h3>
-        <div class="canvas-wrap">
-          <div class="empty" id="originalEmpty">Your original image will appear here</div>
-          <canvas id="original" hidden></canvas>
+  <header class="wrap topbar">
+    <a class="brand" href="#top" aria-label="Pixora home"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/><path d="m19 3 .8 2.2L22 6l-2.2.8L19 9l-.8-2.2L16 6l2.2-.8L19 3Z"/></svg></span>Pixora</a>
+    <span class="top-pill">✦ Free AI Logo Enhancer</span>
+  </header>
+  <main id="top" class="wrap">
+    <section class="hero">
+      <span class="eyebrow"><span class="dot"></span> PRIVATE · BROWSER-BASED AI</span>
+      <h1>Make every logo<br/><span class="gradient">look sharper.</span></h1>
+      <p>Upscale small, blurry logos into cleaner, higher-resolution images. Simple, private, and free to use.</p>
+    </section>
+    <section class="workspace" aria-label="Logo enhancement workspace">
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Original logo</span><span class="step">01 / UPLOAD</span></div>
+        <label class="drop" id="dropZone" for="fileInput">
+          <span class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
+          <strong>Drop your logo here</strong>
+          <p>or choose an image from your device</p>
+          <span class="browse">Choose image</span>
+          <span class="formats">PNG · JPG · WEBP · UP TO 10 MB</span>
+        </label>
+        <input class="file-input" id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" />
+        <img class="preview" id="originalPreview" alt="Original logo preview" />
+        <div class="file-row" id="fileRow"><span class="file-name" id="fileName"></span><button class="text-btn" id="removeBtn" type="button">Remove</button></div>
+        <div class="controls">
+          <label class="select-wrap" for="scaleSelect">Output size <select id="scaleSelect"><option value="2">2× upscale</option></select></label>
+          <button class="enhance" id="enhanceBtn" type="button" disabled>✦ Enhance logo</button>
         </div>
+        <div class="progress" id="progress"><span></span></div>
+        <div class="status" id="status" aria-live="polite">Upload a logo to get started.</div>
       </div>
-      <div class="preview-box">
-        <h3>Enhanced Preview</h3>
-        <div class="canvas-wrap">
-          <div class="empty" id="resultEmpty">Your enhanced image will appear here</div>
-          <canvas id="result" hidden></canvas>
-        </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Enhanced result</span><span class="step">02 / DOWNLOAD</span></div>
+        <div class="result-empty" id="resultEmpty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m3 15 5-5 4 4 3-3 6 6"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><strong>Your enhanced logo will appear here</strong><span>Upload an image, then click Enhance logo.</span></div>
+        <img class="result-image" id="resultImage" alt="Enhanced logo result" />
+        <a class="download" id="downloadBtn" download="pixora-enhanced-logo.png" href="#">↓ &nbsp; Download enhanced PNG</a>
+        <div class="status" id="resultMeta">Your image is processed on your device.</div>
       </div>
-    </div>
-  </section>
-  <p class="tag" style="text-align:center;line-height:1.7">Note: This tool uses image processing, not AI reconstruction. It cannot recreate missing logo details or guarantee print-quality results.</p>
-</main>
-
-<footer>© 2026 Pixora. Made for creators.</footer>
-
+    </section>
+    <section class="features">
+      <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></svg></span><b>AI-powered upscaling</b><p>Increase image resolution with a neural-network model.</p></div>
+      <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span><b>Your files stay private</b><p>Images are processed locally in your browser, not uploaded to Pixora.</p></div>
+      <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg></span><b>Easy PNG download</b><p>Save your enhanced result and continue editing in your design software.</p></div>
+    </section>
+    <p class="notice">Note: AI upscaling can alter tiny text, fine lines, or exact brand details. Always compare the result with the original before using a logo for print or commercial work. Transparent backgrounds may be affected by the AI model.</p>
+  </main>
+  <footer class="wrap footer"><span>© <span id="year"></span> Pixora. Made for sharper ideas.</span><span>Free browser-based tool · No account required</span></footer>
 <script>
-const fileInput=document.getElementById('file');
-const original=document.getElementById('original');
-const result=document.getElementById('result');
-const octx=original.getContext('2d');
-const rctx=result.getContext('2d');
-const status=document.getElementById('status');
-let image=null;
+(() => {
+  const fileInput = document.getElementById('fileInput');
+  const dropZone = document.getElementById('dropZone');
+  const originalPreview = document.getElementById('originalPreview');
+  const fileRow = document.getElementById('fileRow');
+  const fileName = document.getElementById('fileName');
+  const removeBtn = document.getElementById('removeBtn');
+  const enhanceBtn = document.getElementById('enhanceBtn');
+  const statusEl = document.getElementById('status');
+  const progress = document.getElementById('progress');
+  const resultEmpty = document.getElementById('resultEmpty');
+  const resultImage = document.getElementById('resultImage');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const resultMeta = document.getElementById('resultMeta');
+  let selectedFile = null;
+  let originalUrl = null;
+  let resultUrl = null;
+  let upscaler = null;
+  let busy = false;
 
-function render(){
- if(!image)return;
- const w=image.naturalWidth,h=image.naturalHeight;
- original.width=w;original.height=h;
- octx.clearRect(0,0,w,h);
- octx.drawImage(image,0,0);
- result.width=w;result.height=h;
- rctx.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%)`;
- rctx.clearRect(0,0,w,h);
- rctx.drawImage(image,0,0);
- rctx.filter='none';
+  document.getElementById('year').textContent = new Date().getFullYear();
 
- const amount=Number(sharpness.value)/100;
- if(amount>0){
-  const src=rctx.getImageData(0,0,w,h);
-  const data=src.data;
-  const copy=new Uint8ClampedArray(data);
-  for(let y=1;y<h-1;y++){
-   for(let x=1;x<w-1;x++){
-    const i=(y*w+x)*4;
-    for(let c=0;c<3;c++){
-     const blur=(copy[i-4+c]+copy[i+4+c]+copy[i-w*4+c]+copy[i+w*4+c])/4;
-     data[i+c]=Math.max(0,Math.min(255,copy[i+c]+(copy[i+c]-blur)*amount*2));
-    }
-   }
+  function setStatus(message, kind='') {
+    statusEl.textContent = message;
+    statusEl.className = 'status' + (kind ? ' ' + kind : '');
   }
-  rctx.putImageData(src,0,0);
- }
- original.hidden=false;result.hidden=false;
- document.getElementById('originalEmpty').hidden=true;
- document.getElementById('resultEmpty').hidden=true;
- status.textContent=`Original size: ${w} × ${h} pixels`;
-}
+  function clearResult() {
+    if (resultUrl) URL.revokeObjectURL(resultUrl);
+    resultUrl = null;
+    resultImage.removeAttribute('src');
+    resultImage.style.display = 'none';
+    resultEmpty.style.display = 'flex';
+    downloadBtn.style.display = 'none';
+    resultMeta.textContent = 'Your image is processed on your device.';
+  }
+  function loadFile(file) {
+    if (!file) return;
+    if (!['image/png','image/jpeg','image/webp'].includes(file.type)) {
+      setStatus('Please choose a PNG, JPG, or WEBP image.', 'error'); return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setStatus('This file is larger than 10 MB. Please choose a smaller image.', 'error'); return;
+    }
+    if (originalUrl) URL.revokeObjectURL(originalUrl);
+    selectedFile = file;
+    originalUrl = URL.createObjectURL(file);
+    originalPreview.src = originalUrl;
+    originalPreview.style.display = 'block';
+    dropZone.style.display = 'none';
+    fileRow.style.display = 'flex';
+    fileName.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+    enhanceBtn.disabled = false;
+    clearResult();
+    setStatus('Logo ready. Click Enhance logo when you are ready.');
+  }
+  fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+  ['dragenter','dragover'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.remove('drag'); }));
+  dropZone.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
+  removeBtn.addEventListener('click', () => {
+    if (busy) return;
+    selectedFile = null;
+    if (originalUrl) URL.revokeObjectURL(originalUrl);
+    originalUrl = null;
+    originalPreview.removeAttribute('src');
+    originalPreview.style.display = 'none';
+    dropZone.style.display = 'flex';
+    fileRow.style.display = 'none';
+    fileInput.value = '';
+    enhanceBtn.disabled = true;
+    clearResult();
+    setStatus('Upload a logo to get started.');
+  });
 
-fileInput.addEventListener('change',()=>{
- const file=fileInput.files[0];
- if(!file)return;
- if(file.size>15*1024*1024){status.textContent='Please choose an image smaller than 15 MB.';return;}
- const url=URL.createObjectURL(file);
- const img=new Image();
- img.onload=()=>{
-  image=img;
-  render();
-  URL.revokeObjectURL(url);
- };
- img.onerror=()=>{status.textContent='Could not open this image. Try another file.';};
- img.src=url;
-});
+  function getImage(url) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = url;
+    });
+  }
+  async function makePngWithOriginalAlpha(enhancedSrc, sourceImage) {
+    const enhanced = await getImage(enhancedSrc);
+    const w = enhanced.naturalWidth, h = enhanced.naturalHeight;
+    const output = document.createElement('canvas');
+    output.width = w; output.height = h;
+    const ctx = output.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(enhanced, 0, 0, w, h);
+    try {
+      const pixels = ctx.getImageData(0, 0, w, h);
+      const mask = document.createElement('canvas');
+      mask.width = w; mask.height = h;
+      const mctx = mask.getContext('2d', { willReadFrequently: true });
+      mctx.imageSmoothingEnabled = true;
+      mctx.imageSmoothingQuality = 'high';
+      mctx.drawImage(sourceImage, 0, 0, w, h);
+      const alpha = mctx.getImageData(0, 0, w, h).data;
+      for (let i = 0; i < pixels.data.length; i += 4) pixels.data[i + 3] = alpha[i + 3];
+      ctx.putImageData(pixels, 0, 0);
+    } catch (e) {
+      // If the browser cannot read the canvas, keep the model's output as-is.
+    }
+    return new Promise(resolve => output.toBlob(blob => resolve(blob), 'image/png'));
+  }
 
-['brightness','contrast','sharpness'].forEach(id=>{
- document.getElementById(id).addEventListener('input',()=>{
-  document.getElementById('bv').textContent=brightness.value+'%';
-  document.getElementById('cv').textContent=contrast.value+'%';
-  document.getElementById('sv').textContent=sharpness.value;
-  render();
- });
-});
-
-document.getElementById('reset').onclick=()=>{
- brightness.value=100;contrast.value=100;sharpness.value=0;
- bv.textContent='100%';cv.textContent='100%';sv.textContent='0';
- render();
-};
-
-document.getElementById('download').onclick=()=>{
- if(!image){status.textContent='Please upload an image first.';return;}
- const scale=2;
- const out=document.createElement('canvas');
- out.width=image.naturalWidth*scale;
- out.height=image.naturalHeight*scale;
- const ctx=out.getContext('2d');
- ctx.imageSmoothingEnabled=true;
- ctx.imageSmoothingQuality='high';
- ctx.drawImage(result,0,0,out.width,out.height);
- const link=document.createElement('a');
- link.download='pixora-enhanced.png';
- link.href=out.toDataURL('image/png');
- link.click();
- status.textContent='Your 2x PNG download is ready.';
-};
+  enhanceBtn.addEventListener('click', async () => {
+    if (!selectedFile || busy) return;
+    busy = true;
+    enhanceBtn.disabled = true;
+    progress.style.display = 'block';
+    setStatus('Loading the AI model… first use may take a little longer.');
+    try {
+      if (!window.tf || !window.Upscaler || !window.DefaultUpscalerJSModel) {
+        throw new Error('The AI engine could not load. Check your internet connection and refresh the page.');
+      }
+      if (!upscaler) {
+        await tf.ready();
+        upscaler = new Upscaler({ model: DefaultUpscalerJSModel });
+      }
+      setStatus('Enhancing your logo in this browser. Please keep this tab open…');
+      const sourceImage = await getImage(originalUrl);
+      const maxSide = 1200;
+      let inputImage = sourceImage;
+      if (Math.max(sourceImage.naturalWidth, sourceImage.naturalHeight) > maxSide) {
+        const ratio = maxSide / Math.max(sourceImage.naturalWidth, sourceImage.naturalHeight);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(sourceImage.naturalWidth * ratio);
+        canvas.height = Math.round(sourceImage.naturalHeight * ratio);
+        canvas.getContext('2d').drawImage(sourceImage, 0, 0, canvas.width, canvas.height);
+        inputImage = canvas;
+      }
+      const enhancedSrc = await upscaler.upscale(inputImage, { patchSize: 64, padding: 4 });
+      const pngBlob = await makePngWithOriginalAlpha(enhancedSrc, inputImage);
+      if (!pngBlob) throw new Error('Could not create the PNG file. Please try another image.');
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+      resultUrl = URL.createObjectURL(pngBlob);
+      resultImage.src = resultUrl;
+      resultImage.style.display = 'block';
+      resultEmpty.style.display = 'none';
+      downloadBtn.href = resultUrl;
+      downloadBtn.style.display = 'block';
+      const outImage = await getImage(resultUrl);
+      resultMeta.textContent = `${outImage.naturalWidth} × ${outImage.naturalHeight} px · PNG`;
+      setStatus('Enhancement complete. Review the logo before using it.', 'success');
+    } catch (error) {
+      console.error(error);
+      setStatus(error && error.message ? error.message : 'Something went wrong. Please try again.', 'error');
+    } finally {
+      busy = false;
+      enhanceBtn.disabled = !selectedFile;
+      progress.style.display = 'none';
+    }
+  });
+})();
 </script>
 </body>
 </html>
