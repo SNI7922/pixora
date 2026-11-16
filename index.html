@@ -49,7 +49,10 @@
     .compare-divider span{width:44px;height:44px;background:#fff;color:#151827;border:2px solid #fff;box-shadow:0 3px 18px #0008;font-size:24px}
     .compare-label{bottom:16px;padding:9px 14px;border:1px solid #ffffff55;background:#111827e8;letter-spacing:.5px}
     .compare-range{cursor:ew-resize}
-    .studio-panel .controls{margin-top:18px}
+    .studio-panel .controls{margin-top:18px;flex-wrap:wrap}
+    .studio-panel .select-wrap{flex:1;min-width:180px;justify-content:space-between}
+    .studio-panel .select-wrap select{max-width:100%}
+    .mode-note{font-size:11px;color:#9aa6bf;text-align:left;margin-top:8px;line-height:1.5}
     .studio-panel .status{margin-top:12px}
     .result-meta{font-size:11px;color:#8290aa}
     .studio-panel .download{max-width:420px;margin:14px auto 0}
@@ -63,7 +66,7 @@
       .photo-toolbar .file-row{width:100%}
       .change-btn{width:100%}
       .controls{flex-wrap:wrap}
-      .select-wrap{width:100%;justify-content:space-between}
+      .select-wrap{width:100%;min-width:0;justify-content:space-between}
       .enhance{width:100%;flex:auto}
     }
 
@@ -124,11 +127,19 @@
         </div>
 
         <div class="controls">
+          <label class="select-wrap" for="modeSelect">Photo mode
+            <select id="modeSelect">
+              <option value="natural">Natural · light cleanup</option>
+              <option value="balanced">Balanced · medium cleanup</option>
+              <option value="strong">Strong · heavy cleanup</option>
+            </select>
+          </label>
           <label class="select-wrap" for="scaleSelect">Output size
             <select id="scaleSelect"><option value="2">2× enhance</option><option value="4">4× enhance</option></select>
           </label>
           <button class="enhance" id="enhanceBtn" type="button" disabled>✦ Enhance photo</button>
         </div>
+        <div class="mode-note" id="modeNote">Natural mode is recommended for portraits and faces. It uses light denoising to retain more of the original texture.</div>
         <div class="progress" id="progress"><span></span></div>
         <div class="status" id="status" aria-live="polite">Drop a photo here to get started.</div>
         <a class="download" id="downloadBtn" download="pixora-enhanced.png" href="#">↓ &nbsp; Download enhanced photo</a>
@@ -136,13 +147,13 @@
       </div>
     </section>
     <section class="features">
-      <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></svg></span><b>AI photo cleanup</b><p>Real-ESRGAN reduces common image noise and restores detail while upscaling.</p></div>
+      <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></svg></span><b>AI photo cleanup</b><p>Real-ESRGAN can reduce some noise and compression while upscaling. Results vary by photo.</p></div>
       <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span><b>Your files stay private</b><p>Images are processed locally in your browser, not uploaded to Pixora.</p></div>
       <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg></span><b>Easy image download</b><p>Download your enhanced photo and continue editing.</p></div>
     </section>
     <p class="notice">Note: AI restoration can invent or alter tiny details, text, and fine lines. Always compare the result with the original before printing or sharing. Transparent backgrounds may be affected by the AI model.</p>
   </main>
-  <footer class="wrap footer"><span>© <span id="year"></span> Pixora. Made for sharper ideas.</span><span>Free browser-based tool · No account required</span></footer>
+  <footer class="wrap footer"><span>© <span id="year"></span> Pixora. Made for sharper ideas.</span><span>Free browser-based AI · No per-photo API fee</span></footer>
 <script>
 (() => {
   const fileInput = document.getElementById('fileInput');
@@ -155,6 +166,8 @@
   const fileName = document.getElementById('fileName');
   const removeBtn = document.getElementById('removeBtn');
   const enhanceBtn = document.getElementById('enhanceBtn');
+  const modeSelect = document.getElementById('modeSelect');
+  const modeNote = document.getElementById('modeNote');
   const statusEl = document.getElementById('status');
   const progress = document.getElementById('progress');
   const resultEmpty = document.getElementById('resultEmpty');
@@ -168,8 +181,14 @@
   let originalUrl = null;
   let resultUrl = null;
   let aiSession = null;
+  let activeModelUrl = null;
   let busy = false;
-  const AI_MODEL_URL = 'https://huggingface.co/openpixels-app/browser-models/resolve/e618190d21568175ea4d6d73a85dc599c4e36139/realesr_general_x4v3.onnx';
+  const MODEL_BASE = 'https://huggingface.co/openpixels-app/browser-models/resolve/e618190d21568175ea4d6d73a85dc599c4e36139/';
+  const AI_MODELS = {
+    natural: MODEL_BASE + 'realesr_general_wdn_x4v3.onnx',
+    balanced: MODEL_BASE + 'realesr_general_x4v3_dn50.onnx',
+    strong: MODEL_BASE + 'realesr_general_x4v3.onnx'
+  };
   const TILE_SIZE = 256;
   const TILE_OVERLAP = 16;
 
@@ -277,18 +296,35 @@
     comparisonStage.style.setProperty('--split', compareRange.value + '%');
   });
 
-  async function loadAiModel() {
-    if (aiSession) return aiSession;
+  async function loadAiModel(modelUrl) {
+    if (aiSession && activeModelUrl === modelUrl) return aiSession;
     if (!window.ort) throw new Error('AI runtime could not load. Check your internet connection and refresh.');
+    if (aiSession) {
+      try { await aiSession.release(); } catch (e) {}
+      aiSession = null;
+      activeModelUrl = null;
+    }
     ort.env.wasm.numThreads = 1;
     ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/';
-    setStatus('Downloading the AI model for first use…');
-    aiSession = await ort.InferenceSession.create(AI_MODEL_URL, {
+    setStatus('Loading the selected AI model… first use may take longer.');
+    aiSession = await ort.InferenceSession.create(modelUrl, {
       executionProviders: ['wasm'],
       graphOptimizationLevel: 'all'
     });
+    activeModelUrl = modelUrl;
     return aiSession;
   }
+
+  modeSelect.addEventListener('change', () => {
+    const notes = {
+      natural: 'Natural mode is recommended for portraits and faces. It uses light denoising to retain more original texture.',
+      balanced: 'Balanced mode applies medium denoising for photos with visible compression or grain.',
+      strong: 'Strong mode applies heavier denoising. It may smooth or invent facial details on very low-quality images.'
+    };
+    modeNote.textContent = notes[modeSelect.value] || notes.natural;
+    clearResult();
+    setStatus('Photo mode changed. Run Enhance photo again to create a new result.');
+  });
 
   function makeRgbTensor(imageData) {
     const { data, width, height } = imageData;
@@ -327,8 +363,8 @@
     return canvas;
   }
 
-  async function enhanceWithRealEsrgan(sourceImage) {
-    const session = await loadAiModel();
+  async function enhanceWithRealEsrgan(sourceImage, modelUrl) {
+    const session = await loadAiModel(modelUrl);
     const width = sourceImage.naturalWidth || sourceImage.width;
     const height = sourceImage.naturalHeight || sourceImage.height;
     const sourceCanvas = document.createElement('canvas');
@@ -376,7 +412,9 @@
     setStatus('Preparing the AI photo restoration model…');
     try {
       const sourceImage = await getImage(originalUrl);
-      const enhancedCanvas = await enhanceWithRealEsrgan(sourceImage);
+      const selectedMode = modeSelect.value;
+      const modelUrl = AI_MODELS[selectedMode] || AI_MODELS.natural;
+      const enhancedCanvas = await enhanceWithRealEsrgan(sourceImage, modelUrl);
       const scale = Number(document.getElementById('scaleSelect').value);
       let finalCanvas = enhancedCanvas;
       if (scale === 2) {
@@ -401,7 +439,8 @@
       downloadBtn.href = resultUrl;
       downloadBtn.style.display = 'block';
       const outImage = await getImage(resultUrl);
-      resultMeta.textContent = `${outImage.naturalWidth} × ${outImage.naturalHeight} px · PNG · ${(pngBlob.size / 1024 / 1024).toFixed(2)} MB`;
+      const modeName = { natural: 'Natural', balanced: 'Balanced', strong: 'Strong' }[selectedMode] || 'Natural';
+      resultMeta.textContent = `${outImage.naturalWidth} × ${outImage.naturalHeight} px · PNG · ${(pngBlob.size / 1024 / 1024).toFixed(2)} MB · ${modeName} mode`;
       setStatus('AI cleanup complete. Compare the result before downloading.', 'success');
     } catch (error) {
       console.error(error);
